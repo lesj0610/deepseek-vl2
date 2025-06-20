@@ -6,5 +6,3 @@ accelerate
 sentencepiece
 attrdict
 einops
-numpy==1.26.4
-flash-attn>=2.5.8
