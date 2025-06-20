@@ -10,25 +10,47 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from transformers.utils import (
-    add_start_docstrings,
-    add_start_docstrings_to_model_forward,
-)
-from transformers.modeling_outputs import ModelOutput
-from transformers.configuration_utils import PretrainedConfig
-from transformers import (
-    AutoConfig,
-    AutoModelForCausalLM,
-    PreTrainedModel
-)
-from transformers.utils import logging
+# ───── transformers 호환용 import ─────
+try:
+    # transformers ≥4.38.3
+    from transformers.utils import (
+        add_start_docstrings,
+        add_start_docstrings_to_model_forward,
+    )
+    from transformers.modeling_outputs import ModelOutput
+    from transformers.configuration_utils import PretrainedConfig
+    from transformers import (
+        AutoConfig,
+        AutoModelForCausalLM,
+        PreTrainedModel,
+    )
+    from transformers.utils import logging as transformers_logging
+except (ImportError, ModuleNotFoundError):
+    # transformers ≤4.38.2 (혹은 내부 경로가 바뀐 경우)
+    from transformers.utils import (
+        add_start_docstrings,
+        add_start_docstrings_to_model_forward,
+    )
+    from transformers.modeling_outputs import ModelOutput
+    # 일부 구버전에서는 configuration_utils 대신 config 모듈에 있을 수 있음
+    try:
+        from transformers.config import PretrainedConfig
+    except ImportError:
+        from transformers.configuration_utils import PretrainedConfig
+    from transformers import (
+        AutoConfig,
+        AutoModelForCausalLM,
+        PreTrainedModel,
+    )
+    from transformers import logging as transformers_logging
+# ─────────────────────────────────────────
 
 from .siglip_vit import VisionTransformer
 from .configuration_deepseek import DeepseekV2Config
 from .modeling_deepseek import DeepseekV2ForCausalLM
 
 
-logger = logging.get_logger(__name__)
+logger = transformers_logging.get_logger(__name__)
 
 
 class MlpProjector(nn.Module):
