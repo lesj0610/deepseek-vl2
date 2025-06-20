@@ -15,10 +15,16 @@ from timm.models._manipulate import named_apply, checkpoint_seq, adapt_input_con
 from transformers.modeling_utils import is_flash_attn_2_available
 from functools import partial
 
-
-if is_flash_attn_2_available():
-    from flash_attn import flash_attn_qkvpacked_func
-
+try:
+    # xformers ≥0.0.21
+    from xformers.ops.fmha import fmha as flash_attn_qkvpacked_func
+except (ImportError, ModuleNotFoundError):
+    try:
+        # xformers ≤0.0.20
+        from xformers.components.attention.flash_attention import flash_attn_qkvpacked_func
+    except (ImportError, ModuleNotFoundError):
+        # flash-attn 패키지 기본 모듈
+        from flash_attn import flash_attn_qkvpacked_func
 
 def _no_grad_trunc_normal_(tensor, mean, std, a, b):
     # Cut & paste from PyTorch official master until it's in a few official releases - RW
